@@ -1,8 +1,10 @@
+html {
+    text-align: center;
+}
+
 canvas {
     background-color: black;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
+    border: 12px solid #73AD21;
+    margin-top: 100px;
 }
+
