@@ -5,8 +5,6 @@ let ctx = cnv.getContext("2d")
 cnv.width = 700
 cnv.height = 500
 
-console.log(cnv.width, cnv.height)
-
 let key = []
 
 let playerSpeed = 7
@@ -30,7 +28,7 @@ let player2 = {
 let ball = {
     x: cnv.width/2 - 5,
     y: cnv.height/2 - 5,
-    velocity: 5,
+    velocity: 6,
     sideLength: 12,
     direction: Math.atan2(0, -10)
 }
@@ -59,10 +57,22 @@ function move() {
     //     player1.y += playerSpeed
     // }
 
-    if (ball.x < cnv.width/2) {
-        if (Math.round(player1.y/7) * 7 > ball.y && player1.y > 0) {
+
+    // Decide which side of paddle to hit ball pased on oponent position
+    let paddleSide 
+    if (player2.y > cnv.height/2) { 
+        paddleSide = player1.length
+    } else {
+        paddleSide = 0
+    }
+    // Round values so paddle does not look weird
+    let player1p = Math.round((player1.y + paddleSide)/playerSpeed) * playerSpeed
+    let ballp = Math.round((ball.y + ball.sideLength/2)/playerSpeed) * playerSpeed
+    
+    if (ball.x < cnv.width/2) { // if player is past halfway point
+        if (player1p > ballp && player1.y > 0) { // if ball above player
             player1.y -= playerSpeed
-        } else if (Math.round(player1.y/7) * 7 < ball.y && player1.y < cnv.height - player1.length) {
+        } else if (player1p < ballp && player1.y < cnv.height - player1.length) { // if ball is below
             player1.y += playerSpeed
         }
     }
@@ -90,7 +100,7 @@ function collision(ball, player) {
         ball.y < player.y + player.length &&
         ball.sideLength + ball.y > player.y
       ) {
-            ball.velocity = 10
+            ball.velocity = 12
             let ballPos = ball.y + ball.sideLength/2
             if (ballPos - player.y <= player.length/2) { // top paddle
                 return (360 - (unit * (player.length/2 - (ballPos - player.y)))) * Math.PI/180
@@ -101,14 +111,11 @@ function collision(ball, player) {
     return false
 }
 
-
 function ballfunc() {
-
-    
-
-    if (ball.y > cnv.height - ball.sideLength || ball.y < 0) { // If ball hits top and bottom
-        ball.direction *= -1
+    if (ball.y + ball.sideLength > cnv.height || ball.y < 0) { // If ball hits top and bottom
+        ball.direction = 2 * Math.PI - ball.direction  
     }
+    
     if (collision(ball, player1)) { // collide with player 1 paddle
         ball.direction = Math.PI - collision(ball, player1) // Math.PI in front to reverse angle
     } else if (collision(ball, player2)) { // collide with player 2 paddle
@@ -121,7 +128,7 @@ function ballfunc() {
         ball.y = cnv.height/2 - ball.sideLength
         player1.score ++
         ball.direction = 0
-        ball.velocity = 5
+        ball.velocity = 6
     }
 
     if (ball.x < 0) { // Give point to Player 2
@@ -130,12 +137,13 @@ function ballfunc() {
         player2.score ++
 
         ball.direction = Math.PI
-        ball.velocity = 5
+        ball.velocity = 6
     }
 
     // draw ball
     ball.x += Math.cos(ball.direction) * -ball.velocity
     ball.y += Math.sin(ball.direction) * ball.velocity
+    
 
     ctx.fillRect(ball.x, ball.y, ball.sideLength, ball.sideLength)
 }
